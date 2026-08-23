@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>记录当前岗位</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">投递助手</p>
+          <h1>记录当前岗位</h1>
+        </div>
+      </header>
+
+      <div id="loading" class="notice">正在读取当前网页…</div>
+      <div id="error" class="notice error" hidden></div>
+
+      <form id="applicationForm" hidden>
+        <div class="quality" id="qualityMessage"></div>
+        <label>岗位名称<input id="role" required /></label>
+        <label>公司<input id="company" required /><span id="companySource" class="field-source"></span></label>
+        <div class="two-columns">
+          <label>地点<input id="location" placeholder="可留空" /></label>
+          <label>部门<input id="department" placeholder="只记录网页明确部门" /><span id="departmentSource" class="field-source"></span></label>
+        </div>
+        <label>业务方向 / 团队<input id="businessDirection" placeholder="例如：抖音电商、移动生态事业群" /><span id="businessDirectionSource" class="field-source"></span></label>
+
+        <section class="ai-assist" aria-labelledby="aiAssistTitle">
+          <div class="ai-assist-heading">
+            <div><strong id="aiAssistTitle">AI 补全公司与组织信息</strong><p>仅在字段不明确时使用，并展示判断证据。</p></div>
+            <div class="ai-assist-actions">
+              <button id="openAiSettings" class="settings-button" type="button">AI 设置</button>
+              <button id="aiEnrich" class="ai-button" type="button">AI 补全</button>
+            </div>
+          </div>
+          <p id="aiStatus" class="ai-status" aria-live="polite"></p>
+          <div id="aiSuggestions" class="ai-suggestions" hidden></div>
+          <details id="aiSettings" class="ai-settings">
+            <summary>选择 AI 服务并填写 API Key</summary>
+            <label>AI 服务
+              <select id="aiProvider">
+                <option value="deepseek">DeepSeek（推荐）</option>
+                <option value="openai">OpenAI</option>
+                <option value="none">不使用 AI</option>
+              </select>
+            </label>
+            <label id="aiApiKeyLabel">DeepSeek API Key<input id="aiApiKey" type="password" autocomplete="off" placeholder="输入 DeepSeek API Key" /></label>
+            <p>仅保存在本机浏览器中；AI 补全会发送当前岗位页文字，不发送截图。</p>
+            <button id="saveAiSettings" class="small-button" type="button">保存设置</button>
+          </details>
+        </section>
+        <div class="two-columns">
+          <label>当前状态
+            <select id="status"></select>
+          </label>
+          <label>简历版本
+            <input id="resumeVersion" placeholder="例如：秋招 AI PM V3" />
+          </label>
+        </div>
+        <label>岗位链接<input id="url" type="url" required /></label>
+        <label>JD 原文<textarea id="jdText" rows="8" required></textarea></label>
+        <label>备注<textarea id="notes" rows="2" placeholder="内推人、截止日期或其他信息"></textarea></label>
+        <button class="primary" type="submit">保存为已投递</button>
+        <p id="savedMessage" class="saved" hidden>已保存到投递看板。</p>
+        <button id="openDashboard" class="dashboard-button" type="button">查看投递看板</button>
+      </form>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

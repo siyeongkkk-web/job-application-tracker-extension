@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>投递看板</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">APPLICATION TRACKER</p>
+        <h1>投递看板</h1>
+        <p class="subtitle">岗位链接、JD 原文和每一次进度，放在同一个地方。</p>
+      </div>
+      <button id="exportExcel" class="secondary" type="button">导出 Excel</button>
+    </header>
+
+    <main>
+      <section id="summary" class="summary" aria-label="投递统计"></section>
+      <section class="toolbar" aria-label="筛选投递记录">
+        <label class="search"><span>搜索</span><input id="search" type="search" placeholder="公司、岗位或 JD 关键词" /></label>
+        <label><span>进度</span><select id="statusFilter"><option value="">全部进度</option></select></label>
+      </section>
+
+      <section class="workspace">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>公司</th><th>岗位</th><th>投递日期</th><th>简历版本</th><th>进度</th></tr></thead>
+            <tbody id="applicationRows"></tbody>
+          </table>
+          <div id="empty" class="empty" hidden>
+            <h2>还没有投递记录</h2>
+            <p>打开岗位网页，点击浏览器中的“投递助手”即可记录。</p>
+          </div>
+        </div>
+
+        <aside id="detail" class="detail" aria-live="polite">
+          <div class="detail-placeholder">选择左侧的一条记录，查看完整 JD 和更新进度。</div>
+        </aside>
+      </section>
+    </main>
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>

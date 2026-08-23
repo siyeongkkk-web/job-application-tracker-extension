@@ -1,0 +1,58 @@
+:root {
+  color-scheme: light;
+  --primary: #1e3a8a;
+  --primary-hover: #172f73;
+  --surface: #ffffff;
+  --background: #f8fafc;
+  --text: #172033;
+  --muted: #5f6b7c;
+  --border: #cbd5e1;
+  --soft: #eef4ff;
+  --error: #b42318;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; width: 520px; max-height: 680px; overflow: auto; color: var(--text); background: var(--background); }
+main { padding: 22px; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+h1 { margin: 2px 0 0; font-size: 22px; }
+.eyebrow { margin: 0; color: var(--primary); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+.notice { padding: 14px; border: 1px solid #bfdbfe; background: var(--soft); border-radius: 8px; }
+.notice.error { color: var(--error); background: #fff1f0; border-color: #fecdca; }
+form { display: grid; gap: 13px; }
+label { display: grid; gap: 6px; font-size: 13px; font-weight: 650; }
+input, textarea, select { width: 100%; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; font-size: 14px; padding: 9px 10px; }
+textarea { resize: vertical; line-height: 1.5; }
+input:focus, textarea:focus, select:focus, button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 1px; border-color: var(--primary); }
+.two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.quality { padding: 9px 11px; border-left: 3px solid var(--primary); color: var(--muted); background: var(--soft); font-size: 12px; line-height: 1.45; }
+.field-source { min-height: 16px; color: var(--muted); font-size: 11px; font-weight: 500; line-height: 1.4; }
+.ai-assist { padding: 12px; border: 1px solid #bfdbfe; border-radius: 9px; background: var(--soft); }
+.ai-assist-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ai-assist-heading strong { font-size: 13px; }
+.ai-assist-heading p, .ai-settings p { margin: 3px 0 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.ai-assist-actions { display: flex; align-items: center; gap: 6px; }
+.ai-button, .settings-button, .small-button { border: 1px solid var(--primary); border-radius: 7px; background: var(--surface); color: var(--primary); padding: 8px 11px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.settings-button { border-color: var(--border); color: var(--text); }
+.ai-button:hover, .settings-button:hover, .small-button:hover { background: #e0ebff; }
+.ai-button:disabled { cursor: wait; opacity: .65; }
+.ai-status { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.ai-status.error { color: var(--error); }
+.ai-suggestions { display: grid; gap: 7px; margin-top: 9px; }
+.ai-suggestion { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 8px; border: 1px solid #dbeafe; border-radius: 7px; background: var(--surface); }
+.ai-suggestion strong { font-size: 12px; }
+.ai-suggestion p { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.ai-suggestion button { align-self: start; border: 0; background: transparent; color: var(--primary); font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; }
+.ai-settings { margin-top: 9px; color: var(--muted); font-size: 11px; }
+.ai-settings summary { cursor: pointer; font-weight: 650; }
+.ai-settings label { margin-top: 8px; }
+.ai-settings .small-button { margin-top: 8px; }
+.primary { border: 0; border-radius: 8px; background: var(--primary); color: #fff; padding: 12px 16px; font: inherit; font-weight: 700; cursor: pointer; transition: background 160ms ease; }
+.primary:hover { background: var(--primary-hover); }
+.primary:disabled { cursor: wait; opacity: .65; }
+.saved { margin: 0; color: #067647; text-align: center; font-weight: 650; }
+.dashboard-button { border: 1px solid var(--primary); border-radius: 8px; background: var(--surface); color: var(--primary); padding: 11px 16px; font: inherit; font-weight: 700; cursor: pointer; transition: background 160ms ease; }
+.dashboard-button:hover { background: var(--soft); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

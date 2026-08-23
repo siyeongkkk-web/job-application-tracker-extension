@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="投递助手图标">
+  <rect x="6" y="6" width="116" height="116" rx="28" fill="#1E3A8A"/>
+  <path d="M36 24h42l18 18v58a10 10 0 0 1-10 10H36a10 10 0 0 1-10-10V34a10 10 0 0 1 10-10Z" fill="#FFFFFF"/>
+  <path d="M78 24v13a7 7 0 0 0 7 7h11" fill="#DCE8FF"/>
+  <rect x="40" y="48" width="34" height="7" rx="3.5" fill="#1E3A8A"/>
+  <rect x="40" y="63" width="26" height="6" rx="3" fill="#8CA3CC"/>
+  <circle cx="86" cy="88" r="23" fill="#18B8A6"/>
+  <path d="m75 88 7 7 15-17" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
