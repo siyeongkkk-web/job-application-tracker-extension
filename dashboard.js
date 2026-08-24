@@ -1,4 +1,5 @@
 import { deduplicateApplicationsByUrl, deleteApplication, getApplication, listApplications, saveApplication } from "./lib/db.js";
+import { dateInputValue, replaceLocalDate } from "./lib/date.js";
 import { exportApplicationsXlsx } from "./lib/excel-export.js";
 import { STATUSES } from "./lib/normalize.js";
 
@@ -72,6 +73,7 @@ async function selectApplication(id) {
     <div class="detail-grid">
       <label>公司<input id="detailCompany" value="${escapeHtml(item.company)}" /><span class="evidence-note">${escapeHtml(evidenceText(item, "company"))}</span></label>
       <label>岗位<input id="detailRole" value="${escapeHtml(item.role)}" /></label>
+      <label>投递日期<input id="detailAppliedAt" type="date" required value="${dateInputValue(item.appliedAt)}" /></label>
       <label>当前进度<select id="detailStatus">${STATUSES.map((status) => `<option ${status === item.status ? "selected" : ""}>${status}</option>`).join("")}</select></label>
       <label>简历版本<input id="detailResume" value="${escapeHtml(item.resumeVersion || "")}" /></label>
       <label>部门<input id="detailDepartment" value="${escapeHtml(item.department || "")}" /><span class="evidence-note">${escapeHtml(evidenceText(item, "department"))}</span></label>
@@ -91,6 +93,7 @@ async function selectApplication(id) {
       ...item,
       company,
       role: detail.querySelector("#detailRole").value.trim(),
+      appliedAt: replaceLocalDate(item.appliedAt, detail.querySelector("#detailAppliedAt").value),
       status: detail.querySelector("#detailStatus").value,
       resumeVersion: detail.querySelector("#detailResume").value.trim(),
       department,
