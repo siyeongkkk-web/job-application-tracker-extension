@@ -49,6 +49,14 @@ function manualEvidence(value) {
   return { value, source: "manual", evidence: "", confidence: "high" };
 }
 
+function statusTone(status) {
+  if (status === "Offer") return "harvest";
+  if (["一面", "二面", "HR面"].includes(status)) return "interview";
+  if (status === "笔试") return "test";
+  if (["感谢信", "主动终止"].includes(status)) return "closed";
+  return "active";
+}
+
 function renderRows() {
   const filtered = filteredApplications();
   rows.innerHTML = filtered.map((item) => `
@@ -57,7 +65,7 @@ function renderRows() {
       <td><div class="role-name">${escapeHtml(item.role)}</div></td>
       <td>${formatDate(item.appliedAt)}</td>
       <td>${escapeHtml(item.resumeVersion || "—")}</td>
-      <td><span class="status">${escapeHtml(item.status)}</span></td>
+      <td><span class="status status--${statusTone(item.status)}">${escapeHtml(item.status)}</span></td>
     </tr>`).join("");
   empty.hidden = filtered.length !== 0;
 }
