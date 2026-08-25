@@ -17,3 +17,11 @@ test("ships crisp pixel icons at every manifest size", () => {
   assert.match(svg, /shape-rendering="crispEdges"/);
   assert.doesNotMatch(svg, /<circle|rx=/);
 });
+
+test("uses the submission logo consistently across the interface", () => {
+  for (const page of ["popup.html", "dashboard.html"]) {
+    const html = fs.readFileSync(new URL(`../${page}`, import.meta.url), "utf8");
+    assert.match(html, /icons\/application-tracker\.svg/);
+    assert.doesNotMatch(html, /pixel-sprout\.svg/);
+  }
+});

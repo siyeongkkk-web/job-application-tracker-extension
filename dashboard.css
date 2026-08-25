@@ -51,7 +51,7 @@ button, input, select, textarea { font: inherit; }
   box-shadow: 22px 0 0 var(--grass-dark), 11px -6px 0 #82ad5d, 240px 1px 0 var(--grass-dark), 252px -5px 0 #82ad5d;
 }
 .brand-lockup { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.pixel-sprout {
+.pixel-logo {
   width: 54px;
   height: 54px;
   flex: 0 0 auto;
@@ -220,7 +220,7 @@ tr[data-id].selected { background: #e4efc8; box-shadow: inset 6px 0 0 var(--gras
 }
 @media (max-width: 390px) {
   .brand-lockup { align-items: flex-start; }
-  .pixel-sprout { width: 46px; height: 46px; }
+  .pixel-logo { width: 46px; height: 46px; }
   h1 { font-size: 25px; }
   .subtitle { font-size: 13px; }
   .summary { grid-template-columns: 1fr; }
