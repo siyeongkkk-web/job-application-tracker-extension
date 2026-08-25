@@ -20,7 +20,8 @@
 [hidden] { display: none !important; }
 body {
   margin: 0;
-  width: min(520px, 100vw);
+  width: 520px;
+  min-width: 520px;
   max-height: 680px;
   overflow: auto;
   color: var(--ink);
