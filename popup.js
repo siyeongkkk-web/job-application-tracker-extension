@@ -1,4 +1,4 @@
-import { DEFAULT_AI_PROVIDER, requestAiEnrichment } from "./lib/ai-enrichment.js";
+import { AI_FIELDS, canAdoptSuggestion, shouldAutoAdopt, DEFAULT_AI_PROVIDER, requestAiEnrichment } from "./lib/ai-enrichment.js";
 import { captureCurrentPage } from "./lib/capture-page.js";
 import { findApplicationByUrl, saveApplication } from "./lib/db.js";
 import { makeId, normalizeSnapshot, STATUSES } from "./lib/normalize.js";
@@ -8,7 +8,9 @@ const loading = document.querySelector("#loading");
 const errorBox = document.querySelector("#error");
 const statusSelect = document.querySelector("#status");
 let captured = null;
+let aiRunning = false;
 let pageSnapshot = null;
+let sourceTab = null;
 let aiSettingsState = { provider: DEFAULT_AI_PROVIDER, deepseekApiKey: "", openaiApiKey: "" };
 let aiSettingsReady = Promise.resolve();
 
@@ -37,13 +39,16 @@ const sourceLabels = {
   "site-metadata": "网页站点信息",
   "page-brand": "页面品牌信息",
   "page-title": "浏览器标题推测",
+  visual: "网页标题线索",
+  fallback: "页面标题推测",
+  "page-rule": "网页规则提取，请核对",
   ai: "AI 建议",
   manual: "手动填写",
   missing: "网页未明确",
 };
 
 function renderFieldSource(key) {
-  const evidence = captured?.fieldEvidence?.[key] || { source: "missing", evidence: "", confidence: "low" };
+  const evidence = captured?.fieldEvidence?.[key] || { source: field(key).value ? "page-rule" : "missing", evidence: "", confidence: "low" };
   const label = sourceLabels[evidence.source] || evidence.source;
   const detail = evidence.evidence && evidence.evidence !== field(key).value ? ` · 证据：“${evidence.evidence}”` : "";
   field(`${key}Source`).textContent = `${label}${detail}`;
@@ -72,7 +77,7 @@ function renderAiSettings() {
   field("aiApiKeyLabel").childNodes[0].textContent = disabled ? "API Key" : `${name} API Key`;
   field("aiApiKey").placeholder = saved ? "已保存，留空保持不变" : `输入 ${name} API Key`;
   field("aiApiKey").value = "";
-  field("aiEnrich").disabled = disabled;
+  field("aiEnrich").disabled = disabled || aiRunning;
   field("aiSettings").querySelector("summary").textContent = disabled
     ? "AI 服务设置 · 已关闭"
     : `AI 服务设置 · ${name}${saved ? " 已配置" : " 未配置"}`;
@@ -97,13 +102,14 @@ async function loadCurrentPage() {
       return;
     }
     const [{ result }] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: captureCurrentPage });
+    sourceTab = tab;
     pageSnapshot = result;
     captured = normalizeSnapshot(result);
     for (const key of ["role", "company", "location", "department", "businessDirection", "url", "jdText"]) field(key).value = captured[key] || "";
-    for (const key of ["company", "department", "businessDirection"]) renderFieldSource(key);
+    for (const key of AI_FIELDS) renderFieldSource(key);
     const qualityMessages = {
       structured: "网页提供了规范岗位数据；请快速确认公司和岗位即可。",
-      "visible-text": "已从当前页面正文提取；不确定字段可使用 AI 补全并核对证据。",
+      "visible-text": "已从当前页面正文提取；已配置 AI 时会自动识别，请核对结果后保存。",
       "metadata-only": "这个页面没有可读正文。链接已保留，请手动补充 JD 后再保存。",
     };
     field("qualityMessage").textContent = qualityMessages[captured.captureQuality];
@@ -112,15 +118,6 @@ async function loadCurrentPage() {
   } catch (error) {
     showError(`没有成功读取这个页面：${error.message || "未知原因"}`);
   }
-}
-
-function suggestionLabel(key) {
-  return { company: "公司", department: "部门", businessDirection: "业务方向 / 团队" }[key];
-}
-
-function canAdoptSuggestion(key, suggestion) {
-  if (!suggestion.value || suggestion.basis === "missing" || suggestion.confidence === "low") return false;
-  return key !== "department" || suggestion.basis === "explicit";
 }
 
 function adoptSuggestion(key, suggestion) {
@@ -135,42 +132,11 @@ function adoptSuggestion(key, suggestion) {
   });
 }
 
-function renderAiSuggestions(result) {
-  const container = field("aiSuggestions");
-  container.innerHTML = "";
-  for (const key of ["company", "department", "businessDirection"]) {
-    const suggestion = result[key];
-    const card = document.createElement("div");
-    card.className = "ai-suggestion";
-    const usable = canAdoptSuggestion(key, suggestion);
-    const basisText = suggestion.basis === "explicit" ? "网页明确" : suggestion.basis === "inferred" ? "语义推断" : "没有证据";
-    const title = document.createElement("strong");
-    title.textContent = `${suggestionLabel(key)}：${suggestion.value || "未识别"}`;
-    card.append(title);
-    if (usable) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.textContent = field(key).value === suggestion.value ? "已填入" : "采用";
-      button.disabled = field(key).value === suggestion.value;
-      button.addEventListener("click", () => {
-        adoptSuggestion(key, suggestion);
-        button.textContent = "已填入";
-        button.disabled = true;
-      });
-      card.append(button);
-    }
-    const evidence = document.createElement("p");
-    evidence.textContent = `${basisText}${suggestion.evidence ? ` · 证据：“${suggestion.evidence}”` : ""}`;
-    card.append(evidence);
-    container.append(card);
-  }
-  container.hidden = false;
-}
-
-field("aiEnrich").addEventListener("click", async () => {
+async function recognizePage() {
   const button = field("aiEnrich");
   const status = field("aiStatus");
   await aiSettingsReady;
+  if (!captured || aiRunning) return;
   const provider = aiSettingsState.provider;
   const apiKey = aiSettingsState[providerKey(provider)];
   if (provider === "none") {
@@ -185,26 +151,45 @@ field("aiEnrich").addEventListener("click", async () => {
     field("aiApiKey").focus();
     return;
   }
+  aiRunning = true;
+  field("saveAiSettings").disabled = true;
+  field("aiProvider").disabled = true;
   button.disabled = true;
   button.textContent = "识别中…";
   status.className = "ai-status";
-  status.textContent = "正在结合网页证据判断，不会覆盖网页明确字段。";
+  status.textContent = "正在读取页面截图与文字，识别五项岗位信息…";
   try {
-    const result = await requestAiEnrichment({ provider, apiKey, snapshot: pageSnapshot, current: captured });
-    for (const key of ["company", "department", "businessDirection"]) {
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (activeTab?.id !== sourceTab.id || activeTab.url !== sourceTab.url) throw new Error("岗位页面已切换，请重新打开投递助手再识别。");
+    const [{ result: freshSnapshot }] = await chrome.scripting.executeScript({ target: { tabId: sourceTab.id }, func: captureCurrentPage });
+    const screenshot = await chrome.tabs.captureVisibleTab(sourceTab.windowId, { format: "png" });
+    const extraImages = await Promise.all([...field("aiScreenshots").files].map(file => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("补充截图读取失败，请重新选择。"));
+      reader.readAsDataURL(file);
+    })));
+    pageSnapshot = { ...freshSnapshot, images: [screenshot, ...extraImages] };
+    const current = { ...captured, ...Object.fromEntries(AI_FIELDS.map(key => [key, field(key).value.trim()])) };
+    const result = await requestAiEnrichment({ provider, apiKey, snapshot: pageSnapshot, current });
+    for (const key of AI_FIELDS) {
       const currentEvidence = captured.fieldEvidence?.[key];
-      if ((!field(key).value || currentEvidence?.confidence === "low") && canAdoptSuggestion(key, result[key])) adoptSuggestion(key, result[key]);
+      if (shouldAutoAdopt(key, result[key], field(key).value.trim(), currentEvidence)) adoptSuggestion(key, result[key]);
     }
-    renderAiSuggestions(result);
-    status.textContent = "AI 补全完成。请核对证据后再保存。";
+    status.textContent = "识别结果已自动填入，可直接修改后保存。";
   } catch (error) {
     status.className = "ai-status error";
     status.textContent = error.message || "AI 补全失败，请稍后重试。";
   } finally {
-    button.disabled = false;
-    button.textContent = "AI 补全";
+    aiRunning = false;
+    field("saveAiSettings").disabled = false;
+    field("aiProvider").disabled = false;
+    button.disabled = aiSettingsState.provider === "none";
+    button.textContent = "重新识别";
   }
-});
+}
+
+field("aiEnrich").addEventListener("click", recognizePage);
 
 field("openAiSettings").addEventListener("click", () => {
   field("aiSettings").open = true;
@@ -212,6 +197,7 @@ field("openAiSettings").addEventListener("click", () => {
 });
 
 field("saveAiSettings").addEventListener("click", async () => {
+  if (aiRunning) return;
   const provider = field("aiProvider").value;
   const apiKey = field("aiApiKey").value.trim();
   const status = field("aiStatus");
@@ -230,6 +216,7 @@ field("saveAiSettings").addEventListener("click", async () => {
   renderAiSettings();
   status.className = "ai-status";
   status.textContent = provider === "none" ? "AI 补全已关闭。" : `${providerName(provider)} API Key 已保存在本机，以后无需重复填写。`;
+  if (provider !== "none") await recognizePage();
 });
 
 field("aiProvider").addEventListener("change", renderAiSettings);
@@ -241,7 +228,7 @@ field("aiApiKey").addEventListener("keydown", (event) => {
   }
 });
 
-for (const key of ["company", "department", "businessDirection"]) {
+for (const key of AI_FIELDS) {
   field(key).addEventListener("input", () => setFieldEvidence(key, {
     value: field(key).value.trim(),
     source: "manual",
@@ -294,4 +281,6 @@ chrome.storage.local.get("lastResumeVersion").then(({ lastResumeVersion }) => {
   if (lastResumeVersion) field("resumeVersion").value = lastResumeVersion;
 });
 aiSettingsReady = loadAiSettings();
-loadCurrentPage();
+loadCurrentPage().then(() => {
+  if (captured) return recognizePage();
+});

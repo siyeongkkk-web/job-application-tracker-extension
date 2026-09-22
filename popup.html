@@ -22,24 +22,25 @@
 
       <form id="applicationForm" hidden>
         <div class="quality" id="qualityMessage"></div>
-        <label>岗位名称<input id="role" required /></label>
+        <label>岗位名称<input id="role" required /><span id="roleSource" class="field-source"></span></label>
         <label>公司<input id="company" required /><span id="companySource" class="field-source"></span></label>
         <div class="two-columns">
-          <label>地点<input id="location" placeholder="可留空" /></label>
+          <label>地点<input id="location" placeholder="可留空" /><span id="locationSource" class="field-source"></span></label>
           <label>部门<input id="department" placeholder="只记录网页明确部门" /><span id="departmentSource" class="field-source"></span></label>
         </div>
         <label>业务方向 / 团队<input id="businessDirection" placeholder="例如：抖音电商、移动生态事业群" /><span id="businessDirectionSource" class="field-source"></span></label>
 
         <section class="ai-assist" aria-labelledby="aiAssistTitle">
           <div class="ai-assist-heading">
-            <div><strong id="aiAssistTitle">AI 补全公司与组织信息</strong><p>仅在字段不明确时使用，并展示判断证据。</p></div>
+            <div><strong id="aiAssistTitle">AI 识别岗位信息</strong><p>打开插件后自动结合页面文字与截图，识别五项岗位信息。</p></div>
             <div class="ai-assist-actions">
               <button id="openAiSettings" class="settings-button" type="button">AI 设置</button>
-              <button id="aiEnrich" class="ai-button" type="button">AI 补全</button>
+              <button id="aiEnrich" class="ai-button" type="button">重新识别</button>
             </div>
           </div>
+          <label>补充招聘页截图（可选，多张）<input id="aiScreenshots" type="file" accept="image/png,image/jpeg,image/webp" multiple /></label>
+          <p>已配置 AI 时，打开插件会自动发送页面文字与当前可见区域截图。补充图片后点击“重新识别”；图片不保存到投递记录。</p>
           <p id="aiStatus" class="ai-status" aria-live="polite"></p>
-          <div id="aiSuggestions" class="ai-suggestions" hidden></div>
           <details id="aiSettings" class="ai-settings">
             <summary>选择 AI 服务并填写 API Key</summary>
             <label>AI 服务
@@ -50,7 +51,7 @@
               </select>
             </label>
             <label id="aiApiKeyLabel">DeepSeek API Key<input id="aiApiKey" type="password" autocomplete="off" placeholder="输入 DeepSeek API Key" /></label>
-            <p>仅保存在本机浏览器中；AI 补全会发送当前岗位页文字，不发送截图。</p>
+            <p>API Key 仅保存在本机浏览器中；识别使用支持图片的模型。</p>
             <button id="saveAiSettings" class="small-button" type="button">保存设置</button>
           </details>
         </section>

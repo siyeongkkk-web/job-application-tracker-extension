@@ -23,7 +23,7 @@ function formatDate(value) {
 }
 
 function renderSummary() {
-  const active = applications.filter((item) => !["感谢信", "主动终止"].includes(item.status)).length;
+  const active = applications.filter((item) => !["简历挂", "感谢信", "主动终止"].includes(item.status)).length;
   const interviews = applications.filter((item) => ["一面", "二面", "HR面"].includes(item.status)).length;
   const metrics = [["全部投递", applications.length], ["进行中", active], ["面试阶段", interviews], ["Offer", applications.filter((item) => item.status === "Offer").length]];
   summary.innerHTML = metrics.map(([label, value]) => `<div class="metric"><span>${label}</span><strong>${value}</strong></div>`).join("");
@@ -53,7 +53,7 @@ function statusTone(status) {
   if (status === "Offer") return "harvest";
   if (["一面", "二面", "HR面"].includes(status)) return "interview";
   if (status === "笔试") return "test";
-  if (["感谢信", "主动终止"].includes(status)) return "closed";
+  if (["简历挂", "感谢信", "主动终止"].includes(status)) return "closed";
   return "active";
 }
 

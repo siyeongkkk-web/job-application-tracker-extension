@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "投递助手",
-  "version": "0.4.4",
-  "description": "从岗位网页采集 JD，并可用 AI 补全公司与组织信息。",
+  "version": "0.5.3",
+  "description": "从岗位网页采集 JD，并用多模态 AI 识别公司、岗位、地点与组织信息。",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["https://api.deepseek.com/*", "https://api.openai.com/*"],
   "icons": {
